@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	<bean name="customerRepository"
+		  class="com.kuhn.repository.MemoryCustumerRepositoryImpl" />
+		  
+	<bean name="databaseLog" class="com.kuhn.log.DbLog"/>
+	<bean name="fileLog" class="com.kuhn.log.FileLog"/>
+	<bean name="cloudLog" class="com.kuhn.log.CloudLog"/>
+	
+	<!-- Map discounts -->
+	<bean name="discountNormal" class="com.kuhn.strategy.discount.DiscountCalcNormal"/>
+	<bean name="discountSilver" class="com.kuhn.strategy.discount.DiscountCalcSilver"/>
+	<bean name="discountGold" class="com.kuhn.strategy.discount.DiscountCalcGold"/>
+	<bean name="discountPlatinum" class="com.kuhn.strategy.discount.DiscountCalcPlatinum"/>
+	
+	<util:map id="mapDiscount">
+		<entry key="NORMAL" value-ref="discountNormal" />
+		<entry key="SILVER" value-ref="discountSilver" />
+		<entry key="GOLD" value-ref="discountSilver" />
+		<entry key="PLATINUM" value-ref="discountPlatinum" />
+	</util:map>
+	
+	<bean name="customerService"
+		  class="com.kuhn.service.CustomerServiceImpl">
+		<constructor-arg index="0" ref="customerRepository"/>
+		<constructor-arg index="1" ref="databaseLog"/>
+		<constructor-arg index="2">
+			<list>
+				<ref bean="databaseLog"/>
+				<ref bean="fileLog"/>
+				<ref bean="cloudLog"/>
+			</list>
+		</constructor-arg>
+		<constructor-arg index="3" ref="mapDiscount" />
+	</bean>
+	
+</beans>
